@@ -1,0 +1,18 @@
+# --- Environnements Virtuels et Python ---
+.env/
+env/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*.so
+
+# --- IDE et Système ---
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.bak
+
+# --- Logs et Données temporaires ---
+*.log

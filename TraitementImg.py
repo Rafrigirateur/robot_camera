@@ -47,13 +47,11 @@ def main():
                 print("Erreur : Impossible de lire la caméra.")
                 break
 
-            # 3. Traitement d'image : Seuillage adaptatif
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-            
-            # Calcule le seuil sur des blocs de 31x31 pixels
-            mask = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                         cv2.THRESH_BINARY_INV, 31, 5)
+            # 3. Traitement d'image HSV
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            low_b = np.array([0, 0, 0], dtype=np.uint8)
+            high_b = np.array([180, 255, 50], dtype=np.uint8)
+            mask = cv2.inRange(hsv, low_b, high_b)
 
             #horizon = hauteur_image // 2
             #mask[0:horizon, :] = 0

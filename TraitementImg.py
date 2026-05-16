@@ -77,7 +77,7 @@ def main():
                         # --- TRAITEMENT NORMAL DU PID ---
                         erreur = cx - centre_vire
                         commande = pid.calculer(erreur)                    
-                    commande = pid.calculer(erreur)
+                    
 
                     LIMITE_COMMANDE = 45
                     commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)

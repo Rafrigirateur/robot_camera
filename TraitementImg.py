@@ -76,12 +76,12 @@ def main():
                     else:
                         # --- TRAITEMENT NORMAL DU PID ---
                         erreur = cx - centre_vire
-                        commande = pid.calculer(erreur)                    
-                    
+                        commande = pid.calculer(erreur)  # <-- UN SEUL APPEL ICI
+
+                    # --- ON SUPPRIME LE DEUXIEME APPEL QUI ETAIT ICI ---
 
                     LIMITE_COMMANDE = 45
                     commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)
-
 
                     derniere_commande = commande  
                     

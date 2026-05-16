@@ -23,7 +23,7 @@ def main():
     pid = PID(kp=0.15, ki=0.002, kd=0.05)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 40
+    VITESSE_MAX = 60
     VITESSE_MIN = 20
     COEFF_FREINAGE = 2.0
     centre_vire = largeur_image // 2 
@@ -60,7 +60,7 @@ def main():
                     
                     commande = pid.calculer(erreur)
 
-                    LIMITE_COMMANDE = 35
+                    LIMITE_COMMANDE = 45
                     commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)
 
 

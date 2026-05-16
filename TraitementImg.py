@@ -49,18 +49,34 @@ def main():
             low_b = np.array([0, 0, 0], dtype=np.uint8)
             high_b = np.array([180, 255, 50], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
+
+            horizon = hauteur_image // 2
+            mask[0:horizon, :] = 0
             
             # Extraction des contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
             
             if len(contours) > 0:
                 c = max(contours, key=cv2.contourArea)
+
+                x, y, w, h = cv2.boundingRect(c)
+                est_un_croisement = w > (largeur_image * 0.70)
+
                 M = cv2.moments(c)
                 if M["m00"] != 0:
                     cx = int(M["m10"] / M["m00"])
                     cy = int(M["m01"] / M["m00"])
-                    erreur = cx - centre_vire
                     
+                    if est_un_croisement:
+                        print("Croisement détecté ! On force le passage tout droit.")
+                        # On ignore le PID et on trace droit pour traverser
+                        commande = 0 
+                        vitesse_base_dynamique = VITESSE_MAX
+                        erreur = 0 # Pour l'affichage
+                    else:
+                        # --- TRAITEMENT NORMAL DU PID ---
+                        erreur = cx - centre_vire
+                        commande = pid.calculer(erreur)                    
                     commande = pid.calculer(erreur)
 
                     LIMITE_COMMANDE = 45

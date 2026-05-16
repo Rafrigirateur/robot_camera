@@ -80,10 +80,10 @@ def main():
                     print(f"Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
                     # Éléments de dessin pour le debug visuel
-                    if AFFICHAGE_ACTIF:
-                        cv2.drawContours(frame, [c], -1, (0, 255, 0), 1)
-                        cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
-                        cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
+                    #if AFFICHAGE_ACTIF:
+                    cv2.drawContours(frame, [c], -1, (0, 255, 0), 1)
+                    cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
+                    cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
             else:
                 # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
                 print("Ligne Perdue ! Recherche active...")

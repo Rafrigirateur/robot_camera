@@ -24,8 +24,8 @@ def main():
     
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 60
-    VITESSE_MIN = 20
-    COEFF_FREINAGE = 2.0
+    VITESSE_MIN = 10
+    COEFF_FREINAGE = 3.5
     centre_vire = largeur_image // 2 
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")

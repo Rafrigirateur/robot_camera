@@ -15,7 +15,7 @@ def main():
     largeur_image = 160
     hauteur_image = 120
     
-    cam = Camera(camId=1, width=largeur_image, height=hauteur_image, fps=30)
+    cam = Camera(camId=0, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)

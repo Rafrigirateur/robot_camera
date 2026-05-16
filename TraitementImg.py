@@ -17,6 +17,9 @@ def main():
     
     cam = Camera(camId=0, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image, hauteur_image))
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
@@ -94,6 +97,8 @@ def main():
                 else:
                     moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
 
+            enregistreur_video.write(frame)
+
             # 6. Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:
                 try:
@@ -113,9 +118,14 @@ def main():
         # Relâchement propre du matériel
         moteurs.cleanup()
         cam.release()
+        
+        # --- NOUVEAU : On sauvegarde la vidéo proprement ---
+        enregistreur_video.release() 
+        
         cv2.destroyAllWindows()
-        print("Fermeture du programme.")
+        print("Fermeture du programme et sauvegarde de la vidéo.")
 
 if __name__ == "__main__":
     # Si le script est exécuté directement, on lance la boucle principale
     main()
+    

@@ -20,14 +20,16 @@ def main():
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
-    pid = PID(kp=0.5, ki=0.0, kd=0.02)
+    pid = PID(kp=0.30, ki=0.0, kd=0.15)
     
     # Vitesse de croisière du robot (sur 100)
-    vitesse_base = 35 
+    vitesse_base = 20 
     centre_vire = largeur_image // 2 
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
     time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
+
+    derniere_commande = 0
 
     try:
         while True:
@@ -47,27 +49,20 @@ def main():
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
             
             if len(contours) > 0:
-                # Le plus gros contour est considéré comme la ligne
                 c = max(contours, key=cv2.contourArea)
-                
-                # Calcul du centre (Moments)
                 M = cv2.moments(c)
                 if M["m00"] != 0:
                     cx = int(M["m10"] / M["m00"])
                     cy = int(M["m01"] / M["m00"])
-                    
-                    # Calcul de l'erreur (-80 à +80)
                     erreur = cx - centre_vire
                     
-                    # 4. Calcul de la commande PID
                     commande = pid.calculer(erreur)
+                    derniere_commande = commande  # <-- SAUVEGARDE DE LA COMMANDE ICI
                     
-                    # 5. Application aux moteurs (Direction différentielle)
                     vitesse_gauche = vitesse_base + commande
                     vitesse_droite = vitesse_base - commande
                     moteurs.piloter(vitesse_gauche, vitesse_droite)
                     
-                    # Debug dans le terminal
                     print(f"Err: {erreur:3d} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
                     # Éléments de dessin pour le debug visuel
@@ -76,10 +71,15 @@ def main():
                         cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
                         cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
             else:
-                # Sécurité : Si le robot perd la ligne, il s'arrête immédiatement
-                print("Ligne Perdue ! Arrêt d'urgence.")
-                moteurs.stop()
-                pid.reset()
+                # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
+                print("Ligne Perdue ! Recherche active...")
+                # Au lieu de s'arrêter, le robot pivote sur lui-même dans la dernière direction connue
+                if derniere_commande > 0:
+                    # La ligne est sortie par la droite, on tourne fort à droite
+                    moteurs.piloter(35, -35)
+                else:
+                    # La ligne est sortie par la gauche, on tourne fort à gauche
+                    moteurs.piloter(-35, 35)
 
             # 6. Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:

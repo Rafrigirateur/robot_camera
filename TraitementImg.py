@@ -23,7 +23,9 @@ def main():
     pid = PID(kp=0.15, ki=0.002, kd=0.05)
     
     # Vitesse de croisière du robot (sur 100)
-    vitesse_base = 40
+    VITESSE_MAX = 80
+    vitesse_base = 60
+    COEFF_FREINAGE = 0.8
     centre_vire = largeur_image // 2 
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
@@ -57,13 +59,18 @@ def main():
                     erreur = cx - centre_vire
                     
                     commande = pid.calculer(erreur)
-                    derniere_commande = commande  # <-- SAUVEGARDE DE LA COMMANDE ICI
+                    derniere_commande = commande  
                     
-                    vitesse_gauche = vitesse_base + commande
-                    vitesse_droite = vitesse_base - commande
+                    ralentissement = abs(erreur) * COEFF_FREINAGE
+                    vitesse_base_dynamique = VITESSE_MAX - ralentissement
+
+                    vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)
+                    
+                    vitesse_gauche = vitesse_base_dynamique + commande
+                    vitesse_droite = vitesse_base_dynamique - commande
                     moteurs.piloter(vitesse_gauche, vitesse_droite)
                     
-                    print(f"Err: {erreur:3d} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
+                    print(f"Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
                     # Éléments de dessin pour le debug visuel
                     if AFFICHAGE_ACTIF:

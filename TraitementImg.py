@@ -3,7 +3,7 @@ import numpy as np
 import time
 from Hardware.camera import Camera
 from Hardware.moteur import Moteur
-from pid import PID
+from Pid import PID
 
 # Configurable : Mets False pour désactiver le retour vidéo en SSH
 AFFICHAGE_ACTIF = False  

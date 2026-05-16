@@ -20,7 +20,7 @@ def main():
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
-    pid = PID(kp=0.15, ki=0.002, kd=0.05)
+    pid = PID(kp=0.15, ki=0.002, kd=0.01)
     
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 60
@@ -84,13 +84,15 @@ def main():
             else:
                 # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
                 print("Ligne Perdue ! Recherche active...")
+
+                pid.reset()
+
+                VITESSE_PIVOT = 22
                 # Au lieu de s'arrêter, le robot pivote sur lui-même dans la dernière direction connue
                 if derniere_commande > 0:
-                    # La ligne est sortie par la droite, on tourne fort à droite
-                    moteurs.piloter(35, -35)
+                    moteurs.piloter(VITESSE_PIVOT, -VITESSE_PIVOT)
                 else:
-                    # La ligne est sortie par la gauche, on tourne fort à gauche
-                    moteurs.piloter(-35, 35)
+                    moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
 
             # 6. Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:

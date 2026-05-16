@@ -23,7 +23,7 @@ def main():
     pid = PID(kp=0.30, ki=0.005, kd=0.15)
     
     # Vitesse de croisière du robot (sur 100)
-    vitesse_base = 20 
+    vitesse_base = 40
     centre_vire = largeur_image // 2 
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")

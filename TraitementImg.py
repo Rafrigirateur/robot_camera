@@ -23,9 +23,9 @@ def main():
     pid = PID(kp=0.15, ki=0.002, kd=0.05)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 80
-    vitesse_base = 60
-    COEFF_FREINAGE = 0.8
+    VITESSE_MAX = 100
+    VITESSE_MIN = 40
+    COEFF_FREINAGE = 0.6
     centre_vire = largeur_image // 2 
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")

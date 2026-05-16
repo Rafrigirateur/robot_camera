@@ -1,34 +1,44 @@
 import cv2
 import numpy as np
+import time
 from Hardware.camera import Camera
 from Hardware.moteur import Moteur
+from pid import PID
+
+# Configurable : Mets False pour désactiver le retour vidéo en SSH
+AFFICHAGE_ACTIF = False  
 
 def main():
-    # 1. Initialisation des composants
-    # On utilise la résolution légère (160x120) pour maximiser les FPS
+    global AFFICHAGE_ACTIF
+    
+    # 1. Configuration des composants
     largeur_image = 160
     hauteur_image = 120
     
     cam = Camera(camId=1, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
     
-    # Le centre théorique de la caméra sur l'axe X
+    # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
+    # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
+    pid = PID(kp=0.5, ki=0.0, kd=0.02)
+    
+    # Vitesse de croisière du robot (sur 100)
+    vitesse_base = 35 
     centre_vire = largeur_image // 2 
     
-    print("Démarrage du Suiveur de Ligne. Appuyez sur 'q' pour quitter.")
+    print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
+    time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
 
     try:
         while True:
-            # 2. Récupération de l'image via ta classe Camera
+            # 2. Capture d'image
             frame = cam.get_frame()
             if frame is None:
-                print("Erreur de lecture caméra.")
+                print("Erreur : Impossible de lire la caméra.")
                 break
 
-            # 3. Traitement d'image (Colorimétrie HSV)
+            # 3. Traitement d'image HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            
-            # Seuils pour la ligne noire
             low_b = np.array([0, 0, 0], dtype=np.uint8)
             high_b = np.array([180, 255, 50], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
@@ -36,62 +46,63 @@ def main():
             # Extraction des contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
             
-            erreur = 0  # Erreur par défaut si on perd la ligne
-            
             if len(contours) > 0:
-                # On prend le plus grand contour (la ligne)
+                # Le plus gros contour est considéré comme la ligne
                 c = max(contours, key=cv2.contourArea)
                 
-                # 4. Calcul du centre de masse (Centroïde) du contour via les Moments
+                # Calcul du centre (Moments)
                 M = cv2.moments(c)
-                if M["m00"] != 0: # Évite la division par zéro sur des micro-contours bruités
+                if M["m00"] != 0:
                     cx = int(M["m10"] / M["m00"])
                     cy = int(M["m01"] / M["m00"])
                     
-                    # 5. Calcul de l'erreur pour le PID
+                    # Calcul de l'erreur (-80 à +80)
                     erreur = cx - centre_vire
                     
-                    # --- Section Visuelle (Optionnelle, pour debug) ---
-                    # Dessiner le contour en vert
-                    cv2.drawContours(frame, [c], -1, (0, 255, 0), 1)
-                    # Dessiner le centre de la ligne (point bleu)
-                    cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
-                    # Dessiner le centre idéal de l'image (croix rouge)
-                    cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
-                
-                # --- ZONE D'EXPLOITATION PID ---
-                # C'est ici que tu injecteras ton calcul PID :
-                # commande = PID.calculer(erreur)
-                # moteurs.piloter(vitesse_base + commande, vitesse_base - commande)
-                
-                # Pour tester sans PID (juste un mini correcteur proportionnel basique) :
-                # Kp = 0.5
-                # correction = erreur * Kp
-                # moteurs.piloter(30 + correction, 30 - correction)
-                
-                print(f"Position Ligne (Cx): {cx} | Erreur transmissible au PID: {erreur}")
+                    # 4. Calcul de la commande PID
+                    commande = pid.calculer(erreur)
+                    
+                    # 5. Application aux moteurs (Direction différentielle)
+                    vitesse_gauche = vitesse_base + commande
+                    vitesse_droite = vitesse_base - commande
+                    moteurs.piloter(vitesse_gauche, vitesse_droite)
+                    
+                    # Debug dans le terminal
+                    print(f"Err: {erreur:3d} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
+                    
+                    # Éléments de dessin pour le debug visuel
+                    if AFFICHAGE_ACTIF:
+                        cv2.drawContours(frame, [c], -1, (0, 255, 0), 1)
+                        cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
+                        cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
             else:
-                # Si on ne voit plus la ligne, on s'arrête de sécurité (ou stratégie de recherche)
-                print("Ligne perdue !")
+                # Sécurité : Si le robot perd la ligne, il s'arrête immédiatement
+                print("Ligne Perdue ! Arrêt d'urgence.")
                 moteurs.stop()
+                pid.reset()
 
-            # 6. Affichage des fenêtres de Debug
-            cv2.imshow("Masque Noir", mask)
-            cv2.imshow("Vue Robot", frame)
-            
-            # Sortie propre
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            # 6. Gestion de l'affichage sécurisée
+            if AFFICHAGE_ACTIF:
+                try:
+                    cv2.imshow("Masque", mask)
+                    cv2.imshow("Robot", frame)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                except cv2.error:
+                    # Si OpenCV crash à cause de l'absence d'écran X11, on coupe l'affichage définitivement
+                    print("Serveur graphique non détecté. Passage en mode headless automatisé.")
+                    AFFICHAGE_ACTIF = False
 
     except KeyboardInterrupt:
-        print("\nInterruption par l'utilisateur.")
+        print("\nArrêt demandé par l'utilisateur.")
         
     finally:
-        # Nettoyage propre de tous les périphériques
+        # Relâchement propre du matériel
         moteurs.cleanup()
         cam.release()
         cv2.destroyAllWindows()
-        print("Robot arrêté proprement.")
+        print("Fermeture du programme.")
 
 if __name__ == "__main__":
+    # Si le script est exécuté directement, on lance la boucle principale
     main()

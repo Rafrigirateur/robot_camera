@@ -50,8 +50,8 @@ def main():
             high_b = np.array([180, 255, 50], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
 
-            horizon = hauteur_image // 2
-            mask[0:horizon, :] = 0
+            #horizon = hauteur_image // 2
+            #mask[0:horizon, :] = 0
             
             # Extraction des contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)

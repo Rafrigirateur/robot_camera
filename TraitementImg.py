@@ -23,8 +23,8 @@ def main():
     pid = PID(kp=0.15, ki=0.002, kd=0.01)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 60
-    VITESSE_MIN = 10
+    VITESSE_MAX = 40
+    VITESSE_MIN = 20
     COEFF_FREINAGE = 2.5
     centre_vire = largeur_image // 2 
     

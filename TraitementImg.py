@@ -59,6 +59,11 @@ def main():
                     erreur = cx - centre_vire
                     
                     commande = pid.calculer(erreur)
+
+                    LIMITE_COMMANDE = 35
+                    commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)
+
+
                     derniere_commande = commande  
                     
                     ralentissement = abs(erreur) * COEFF_FREINAGE
@@ -68,8 +73,7 @@ def main():
                     
                     vitesse_gauche = vitesse_base_dynamique + commande
                     vitesse_droite = vitesse_base_dynamique - commande
-                    moteurs.piloter(vitesse_gauche, vitesse_droite)
-                    
+                    moteurs.piloter(vitesse_gauche, vitesse_droite)                    
                     print(f"Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
                     # Éléments de dessin pour le debug visuel

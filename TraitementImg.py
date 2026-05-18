@@ -47,6 +47,9 @@ def main():
                 print("Erreur : Impossible de lire la caméra.")
                 break
 
+            #Flou gaussien pour réduire le bruit
+            frame = cv2.GaussianBlur(frame, (5, 5), 0)
+
             # 3. Traitement d'image HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             low_b = np.array([0, 0, 0], dtype=np.uint8)

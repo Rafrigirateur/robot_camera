@@ -89,8 +89,6 @@ def main():
             pts = pts.reshape(-1, 2)
             cx_ligne, cy_ligne = pts.mean(axis=0).astype(int)
 
-            texte_seuil = f"Seuil Otsu: {int(cx_ligne)}"
-            cv2.putText(mask, texte_seuil, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255, 1)
 
             #horizon = hauteur_image // 2
             #mask[0:horizon, :] = 0
@@ -119,6 +117,9 @@ def main():
                         # --- TRAITEMENT NORMAL DU PID ---
                         erreur = cx - cx_ligne
                         commande = pid.calculer(erreur)  # <-- UN SEUL APPEL ICI
+
+                        texte_seuil = f" {int(erreur)}"
+                        cv2.putText(mask, texte_seuil, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255, 1)
 
                     # --- ON SUPPRIME LE DEUXIEME APPEL QUI ETAIT ICI ---
 

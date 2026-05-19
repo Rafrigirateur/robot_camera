@@ -115,7 +115,7 @@ def main():
                         erreur = 0 # Pour l'affichage
                     else:
                         # --- TRAITEMENT NORMAL DU PID ---
-                        erreur = cx - cx_ligne
+                        erreur = cx - cy_ligne
                         commande = pid.calculer(erreur)  # <-- UN SEUL APPEL ICI
 
                         texte_seuil = f" {int(erreur)}"

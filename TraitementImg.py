@@ -20,6 +20,8 @@ def main():
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image, hauteur_image))
+
+    enregistreur_mask = cv2.VideoWriter('log_mask.avi', fourcc, 30.0, (largeur_image, hauteur_image), isColor=False)
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
@@ -50,13 +52,21 @@ def main():
             #Flou gaussien pour réduire le bruit
             frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
-            
+        
 
             # 3. Traitement d'image HSV
+            """
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             low_b = np.array([0, 0, 0], dtype=np.uint8)
             high_b = np.array([180, 255, 50], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
+            """
+
+            # 3. Traitement d'image (Niveaux de gris + Binarisation d'Otsu)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # La ligne noire devient blanche sur le masque grâce à THRESH_BINARY_INV
+            _, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
 
             #horizon = hauteur_image // 2
             #mask[0:horizon, :] = 0
@@ -122,6 +132,7 @@ def main():
                     moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
 
             enregistreur_video.write(frame)
+            enregistreur_mask.write(mask)
 
             # 6. Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:

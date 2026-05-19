@@ -22,6 +22,8 @@ def main():
     enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image, hauteur_image))
 
     enregistreur_mask = cv2.VideoWriter('log_mask.avi', fourcc, 30.0, (largeur_image, hauteur_image), isColor=False)
+
+    enregistreur_origine = cv2.VideoWriter('log_origine.avi', fourcc, 30.0, (largeur_image, hauteur_image))
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
@@ -51,6 +53,8 @@ def main():
 
             #Flou gaussien pour réduire le bruit
             frame = cv2.GaussianBlur(frame, (5, 5), 0)
+
+            frame_origine = frame.copy()
 
         
 
@@ -137,12 +141,14 @@ def main():
 
             enregistreur_video.write(frame)
             enregistreur_mask.write(mask)
+            enregistreur_origine.write(frame_origine)
 
             # 6. Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:
                 try:
                     cv2.imshow("Masque", mask)
                     cv2.imshow("Robot", frame)
+                    cv2.imshow("Origine", frame_origine)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 except cv2.error:
@@ -157,6 +163,7 @@ def main():
         # Relâchement propre du matériel
         moteurs.cleanup()
         cam.release()
+        enregistreur_origine.release() 
         
         # --- NOUVEAU : On sauvegarde la vidéo proprement ---
         enregistreur_video.release() 

@@ -86,7 +86,7 @@ def main():
             # On écrit le texte en blanc (255) en haut à gauche (x=10, y=20)
 
             pts = cv2.findNonZero(mask)
-            pts = pts.reshape(-1, 2)
+            pts = pts.reshape(-1, 2) if pts is None else np.array([[0, 0]])  # Évite les erreurs si aucun point n'est trouvé
             cx_ligne, cy_ligne = pts.mean(axis=0).astype(int)
 
 

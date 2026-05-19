@@ -87,6 +87,9 @@ def main():
             texte_seuil = f"Seuil Otsu: {int(seuil)}"
             cv2.putText(mask, texte_seuil, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255, 1)
 
+            pts = cv2.findNonZero(mask)
+            pts = pts.reshape(-1, 2)
+            cx_ligne, cy_ligne = pts.mean(axis=0)
 
             #horizon = hauteur_image // 2
             #mask[0:horizon, :] = 0
@@ -105,7 +108,7 @@ def main():
                     cx = int(M["m10"] / M["m00"])
                     cy = int(M["m01"] / M["m00"])
                     
-                    if est_un_croisement:
+                    if False : #est_un_croisement
                         print("Croisement détecté ! On force le passage tout droit.")
                         # On ignore le PID et on trace droit pour traverser
                         commande = 0 
@@ -113,7 +116,7 @@ def main():
                         erreur = 0 # Pour l'affichage
                     else:
                         # --- TRAITEMENT NORMAL DU PID ---
-                        erreur = cx - centre_vire
+                        erreur = cx - cx_ligne
                         commande = pid.calculer(erreur)  # <-- UN SEUL APPEL ICI
 
                     # --- ON SUPPRIME LE DEUXIEME APPEL QUI ETAIT ICI ---

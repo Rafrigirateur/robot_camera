@@ -15,8 +15,8 @@ def main():
     largeur_image = 160
     hauteur_image = 120
     
-    seuil = 20
-    
+    seuil = 5
+
     cam = Camera(camId=0, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
 
@@ -78,7 +78,7 @@ def main():
             # 3. Traitement d'image (Niveaux de gris + Binarisation d'Otsu)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # La ligne noire devient blanche sur le masque grâce à THRESH_BINARY_INV
-            seuil, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            seuil, mask = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY_INV ) #+ cv2.THRESH_OTSU
 
             mask[i + j < seuil] = 0
             mask[i + (largeur_image -1 - j) < seuil] = 0

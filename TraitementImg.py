@@ -115,7 +115,7 @@ def main():
                         erreur = 0 # Pour l'affichage
                     else:
                         # --- TRAITEMENT NORMAL DU PID ---
-                        erreur = 160 - cy_ligne
+                        erreur = 80 - cy_ligne
                         commande = pid.calculer(erreur)  # <-- UN SEUL APPEL ICI
 
                         texte_seuil = f" {int(erreur)}"
@@ -136,7 +136,7 @@ def main():
                     vitesse_gauche = vitesse_base_dynamique + commande
                     vitesse_droite = vitesse_base_dynamique - commande
                     moteurs.piloter(vitesse_gauche, vitesse_droite)                    
-                    print(f"Cx: {cx} | Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
+                    print(f"Cx: {cy_ligne} | Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
                     # Éléments de dessin pour le debug visuel
                     #if AFFICHAGE_ACTIF:

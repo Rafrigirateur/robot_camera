@@ -65,7 +65,11 @@ def main():
             # 3. Traitement d'image (Niveaux de gris + Binarisation d'Otsu)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # La ligne noire devient blanche sur le masque grâce à THRESH_BINARY_INV
-            _, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            seuil, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+            # On écrit le texte en blanc (255) en haut à gauche (x=10, y=20)
+            texte_seuil = f"Seuil Otsu: {int(seuil)}"
+            cv2.putText(mask, texte_seuil, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255, 1)
 
 
             #horizon = hauteur_image // 2
@@ -156,6 +160,7 @@ def main():
         
         # --- NOUVEAU : On sauvegarde la vidéo proprement ---
         enregistreur_video.release() 
+        enregistreur_mask.release() 
         
         cv2.destroyAllWindows()
         print("Fermeture du programme et sauvegarde de la vidéo.")

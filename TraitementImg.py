@@ -33,8 +33,8 @@ def main():
     
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 40
-    VITESSE_MIN = 10
-    COEFF_FREINAGE = 2.5
+    VITESSE_MIN = 20
+    COEFF_FREINAGE = 1.8
     centre_vire = largeur_image // 2 
 
     i, j = np.indices((hauteur_image, largeur_image))

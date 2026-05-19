@@ -136,7 +136,7 @@ def main():
                     vitesse_gauche = vitesse_base_dynamique + commande
                     vitesse_droite = vitesse_base_dynamique - commande
                     moteurs.piloter(vitesse_gauche, vitesse_droite)                    
-                    print(f"Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
+                    print(f"Cx: {cx} | Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
                     # Éléments de dessin pour le debug visuel
                     #if AFFICHAGE_ACTIF:

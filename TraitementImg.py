@@ -45,7 +45,7 @@ def main():
     derniere_commande = 0
 
     moteurs.piloter(40, 40)
-    time.sleep(0.2)
+    time.sleep(0.05)
 
     try:
         while True:

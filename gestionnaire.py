@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import subprocess
 import time
 import signal
+import sys
 
 # Configuration de la broche (Changer si tu utilises une autre GPIO)
 PIN_INTERRUPTEUR = 26 
@@ -18,6 +19,9 @@ print("En attente de l'activation...")
 
 try:
     while True:
+        if processus_robot is not None and processus_robot.poll() is not None:
+            print(f"\n[INFO] Le robot s'est arrêté tout seul (Code: {processus_robot.poll()}). Réinitialisation...")
+            processus_robot = None
         # Lecture de l'état (0 = Fermé/ON, 1 = Ouvert/OFF)
         etat_interrupteur = GPIO.input(PIN_INTERRUPTEUR)
         
@@ -26,7 +30,7 @@ try:
             print("\n[ON] Interrupteur activé ! Lancement de TraitementImg...")
             
             # On lance le script dans un processus séparé
-            processus_robot = subprocess.Popen(["python3", "TraitementImg.py"])
+            processus_robot = subprocess.Popen([sys.executable, "TraitementImg.py"])
             
             # Anti-rebond basique pour éviter les déclenchements fous
             time.sleep(1) 

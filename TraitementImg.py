@@ -84,12 +84,13 @@ def main():
             mask[i + (largeur_image -1 - j) < seuil] = 0
 
             # On écrit le texte en blanc (255) en haut à gauche (x=10, y=20)
-            texte_seuil = f"Seuil Otsu: {int(seuil)}"
-            cv2.putText(mask, texte_seuil, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255, 1)
 
             pts = cv2.findNonZero(mask)
             pts = pts.reshape(-1, 2)
             cx_ligne, cy_ligne = pts.mean(axis=0).astype(int)
+
+            texte_seuil = f"Seuil Otsu: {int(cx_ligne)}"
+            cv2.putText(mask, texte_seuil, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 255, 1)
 
             #horizon = hauteur_image // 2
             #mask[0:horizon, :] = 0

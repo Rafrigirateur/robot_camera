@@ -51,10 +51,13 @@ def main():
                 print("Erreur : Impossible de lire la caméra.")
                 break
 
+
+            frame_origine = frame.copy()
+            
             #Flou gaussien pour réduire le bruit
             frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
-            frame_origine = frame.copy()
+            
 
         
 

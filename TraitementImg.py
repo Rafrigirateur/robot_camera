@@ -15,6 +15,8 @@ def main():
     largeur_image = 160
     hauteur_image = 120
     
+    seuil = 20
+    
     cam = Camera(camId=0, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
 
@@ -34,9 +36,11 @@ def main():
     VITESSE_MIN = 10
     COEFF_FREINAGE = 2.5
     centre_vire = largeur_image // 2 
+
+    i, j = np.indices((hauteur_image, largeur_image))
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
-    time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
+    #time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
 
     derniere_commande = 0
 
@@ -53,7 +57,7 @@ def main():
 
 
             frame_origine = frame.copy()
-            
+
             #Flou gaussien pour réduire le bruit
             frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
@@ -69,10 +73,15 @@ def main():
             mask = cv2.inRange(hsv, low_b, high_b)
             """
 
+
+
             # 3. Traitement d'image (Niveaux de gris + Binarisation d'Otsu)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # La ligne noire devient blanche sur le masque grâce à THRESH_BINARY_INV
             seuil, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+            mask[i + j < seuil] = 0
+            mask[i + (largeur_image -1 - j) < seuil] = 0
 
             # On écrit le texte en blanc (255) en haut à gauche (x=10, y=20)
             texte_seuil = f"Seuil Otsu: {int(seuil)}"

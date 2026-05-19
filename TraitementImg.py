@@ -44,8 +44,8 @@ def main():
 
     derniere_commande = 0
 
-    moteurs.piloter(40, 40)
-    time.sleep(0.05)
+    #moteurs.piloter(40, 40)
+    #time.sleep(0.05)
 
     try:
         while True:
@@ -89,7 +89,7 @@ def main():
 
             pts = cv2.findNonZero(mask)
             pts = pts.reshape(-1, 2)
-            cx_ligne, cy_ligne = pts.mean(axis=0)
+            cx_ligne, cy_ligne = pts.mean(axis=0).astype(int)
 
             #horizon = hauteur_image // 2
             #mask[0:horizon, :] = 0

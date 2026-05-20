@@ -18,13 +18,11 @@ def main():
     cam = Camera(camId=0, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
 
-    hauteur_boite = 40 # Hauteur en pixels de la boite noire
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    # L'enregistreur prend en compte la hauteur de l'image + la boite
-    enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image, hauteur_image + hauteur_boite))
+    enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image * 2, hauteur_image * 2))
     
     # Variables par défaut pour l'affichage au cas où la ligne est perdue dès le début
-    erreur, commande, vitesse_gauche, vitesse_droite = 0, 0, 0, 0
+    erreur, commande, vitesse_gauche, vitesse_droite, vitesse_base_dynamique = 0, 0, 0, 0, 0
     
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
@@ -57,6 +55,8 @@ def main():
             if frame is None:
                 print("Erreur : Impossible de lire la caméra.")
                 break
+
+            frame_originale = frame.copy()
 
             #Flou gaussien pour réduire le bruit
             frame = cv2.GaussianBlur(frame, (5, 5), 0)
@@ -115,8 +115,6 @@ def main():
                         ralentissement += (y - SEUIL_PLAFOND) * COEFF_FREINAGE_Y
                         
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
-                        
-                    vitesse_base_dynamique = VITESSE_MAX - ralentissement
                     vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)
                     
                     vitesse_gauche = vitesse_base_dynamique + commande
@@ -142,20 +140,28 @@ def main():
                 else:
                     moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
 
-            # --- CRÉATION DE L'AFFICHAGE ÉTENDU ---
-            # 1. On crée une image noire de la taille totale (vidéo + boite)
-            frame_finale = np.zeros((hauteur_image + hauteur_boite, largeur_image, 3), dtype=np.uint8)
+            # --- CRÉATION DE LA GRILLE D'AFFICHAGE 2x2 ---
+            # 1. On crée le canevas noir global (320x240 pixels)
+            frame_finale = np.zeros((hauteur_image * 2, largeur_image * 2, 3), dtype=np.uint8)
             
-            # 2. On colle la vidéo originale sur la partie haute
-            frame_finale[0:hauteur_image, 0:largeur_image] = frame
+            # 2. On convertit le masque (1 canal) en image (3 canaux) pour l'assemblage
+            mask_couleur = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
             
-            # 3. On formate les variables (optimisé pour 160px de large)
+            # 3. On colle les images dans leurs quadrants respectifs
+            frame_finale[0:hauteur_image, 0:largeur_image] = frame_originale                   # Haut Gauche
+            frame_finale[0:hauteur_image, largeur_image:largeur_image*2] = mask_couleur        # Haut Droite
+            frame_finale[hauteur_image:hauteur_image*2, 0:largeur_image] = frame               # Bas Gauche (avec contours)
+            
+            # 4. Textes et variables pour le quadrant Bas Droite (qui reste noir)
             texte_ligne1 = f"Err:{erreur:3d} | Cmd:{commande:3.0f}"
-            texte_ligne2 = f"VG:{vitesse_gauche:3.0f}  | VD:{vitesse_droite:3.0f}"
+            texte_ligne2 = f"VG:{vitesse_gauche:3.0f} | VD:{vitesse_droite:3.0f}"
+            texte_ligne3 = f"Base: {vitesse_base_dynamique:3.0f}"
             
-            # 4. On écrit le texte dans la zone noire du bas
-            cv2.putText(frame_finale, texte_ligne1, (5, hauteur_image + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne2, (5, hauteur_image + 35), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            # On décale les coordonnées d'écriture vers la droite et le bas
+            decalage_x = largeur_image + 5
+            cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
 
             # On enregistre la frame modifiée au lieu de l'originale
             enregistreur_video.write(frame_finale)

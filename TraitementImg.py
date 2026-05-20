@@ -28,7 +28,8 @@ def main():
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 40
     VITESSE_MIN = 15
-    COEFF_FREINAGE = 2.5
+    COEFF_FREINAGE = 0.6
+    TOLERANCE_ERREUR = 15
     centre_vire = largeur_image // 2 
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
@@ -91,9 +92,14 @@ def main():
 
                     derniere_commande = commande  
                     
-                    ralentissement = abs(erreur) * COEFF_FREINAGE
+                    if abs(erreur) > TOLERANCE_ERREUR:
+                        # On freine uniquement sur ce qui dépasse la tolérance
+                        ralentissement = (abs(erreur) - TOLERANCE_ERREUR) * COEFF_FREINAGE
+                    else:
+                        # Dans la zone de tolérance, pas de freinage
+                        ralentissement = 0
+                        
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
-
                     vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)
                     
                     vitesse_gauche = vitesse_base_dynamique + commande

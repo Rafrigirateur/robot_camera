@@ -131,13 +131,29 @@ def main():
                 else:
                     moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
 
-            enregistreur_video.write(frame)
+            # --- CRÉATION DE L'AFFICHAGE ÉTENDU ---
+            # 1. On crée une image noire de la taille totale (vidéo + boite)
+            frame_finale = np.zeros((hauteur_image + hauteur_boite, largeur_image, 3), dtype=np.uint8)
+            
+            # 2. On colle la vidéo originale sur la partie haute
+            frame_finale[0:hauteur_image, 0:largeur_image] = frame
+            
+            # 3. On formate les variables (optimisé pour 160px de large)
+            texte_ligne1 = f"Err:{erreur:3d} | Cmd:{commande:3.0f}"
+            texte_ligne2 = f"VG:{vitesse_gauche:3.0f}  | VD:{vitesse_droite:3.0f}"
+            
+            # 4. On écrit le texte dans la zone noire du bas
+            cv2.putText(frame_finale, texte_ligne1, (5, hauteur_image + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne2, (5, hauteur_image + 35), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+
+            # On enregistre la frame modifiée au lieu de l'originale
+            enregistreur_video.write(frame_finale)
 
             # 6. Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:
                 try:
                     cv2.imshow("Masque", mask)
-                    cv2.imshow("Robot", frame)
+                    cv2.imshow("Robot", frame_finale) # On affiche la nouvelle frame
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 except cv2.error:

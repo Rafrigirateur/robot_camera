@@ -37,6 +37,11 @@ def main():
     COEFF_FREINAGE = 1.6
     TOLERANCE_ERREUR = 15
     centre_vire = largeur_image // 2 
+
+
+    ralentissement = 0
+    SEUIL_PLAFOND = 10  # Marge en pixels depuis le haut
+    COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
     time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
@@ -98,12 +103,19 @@ def main():
 
                     derniere_commande = commande  
                     
+                    #ralentissement = 0
+                    
+                    # 1. Freinage lié à l'erreur (Gauche/Droite)
                     if abs(erreur) > TOLERANCE_ERREUR:
-                        # On freine uniquement sur ce qui dépasse la tolérance
-                        ralentissement = (abs(erreur) - TOLERANCE_ERREUR) * COEFF_FREINAGE
-                    else:
-                        # Dans la zone de tolérance, pas de freinage
-                        ralentissement = 0
+                        ralentissement += (abs(erreur) - TOLERANCE_ERREUR) * COEFF_FREINAGE
+                        
+                    
+                    
+                    if y > SEUIL_PLAFOND:
+                        # Si le haut de la ligne est à plus de 10 pixels du plafond, on freine
+                        ralentissement += (y - SEUIL_PLAFOND) * COEFF_FREINAGE_Y
+                        
+                    vitesse_base_dynamique = VITESSE_MAX - ralentissement
                         
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
                     vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)

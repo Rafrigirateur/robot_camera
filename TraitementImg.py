@@ -18,8 +18,14 @@ def main():
     cam = Camera(camId=0, width=largeur_image, height=hauteur_image, fps=30)
     moteurs = Moteur()
 
+    hauteur_boite = 40 # Hauteur en pixels de la boite noire
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image, hauteur_image))
+    # L'enregistreur prend en compte la hauteur de l'image + la boite
+    enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image, hauteur_image + hauteur_boite))
+    
+    # Variables par défaut pour l'affichage au cas où la ligne est perdue dès le début
+    erreur, commande, vitesse_gauche, vitesse_droite = 0, 0, 0, 0
+    
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)

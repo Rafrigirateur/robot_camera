@@ -176,11 +176,11 @@ def main():
             
             # On décale les coordonnées d'écriture vers la droite et le bas
             decalage_x = largeur_image + 10
-            cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 75), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1)
-            cv2.putText(frame_finale, texte_ligne5, (decalage_x, hauteur_image + 125), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+            cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 80), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1)
+            cv2.putText(frame_finale, texte_ligne5, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
             # On enregistre la frame modifiée au lieu de l'originale
             enregistreur_video.write(frame_finale)

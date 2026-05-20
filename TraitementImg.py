@@ -37,7 +37,7 @@ def main():
     
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 50
-    VITESSE_MIN = 20
+    VITESSE_MIN = 15
     COEFF_FREINAGE = 1.6
     TOLERANCE_ERREUR = 15
     centre_vire = largeur_image // 2 

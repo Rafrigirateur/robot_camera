@@ -121,7 +121,7 @@ def main():
                     moitie_ecran_y = hauteur_image // 2
                     if cy > moitie_ecran_y:
                         # Plus le point bleu descend sous la moitié de l'écran, plus on freine fort
-                        ralentissement += (cy - moitie_ecran_y) * COEFF_FREINAGE_CY
+                        ralentissement += pow(cy - moitie_ecran_y, 2) * COEFF_FREINAGE_CY
                         
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
                     vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)
@@ -172,13 +172,15 @@ def main():
             texte_ligne2 = f"VG:{vitesse_gauche:3.0f} | VD:{vitesse_droite:3.0f}"
             texte_ligne3 = f"Base: {vitesse_base_dynamique:3.0f}"
             texte_ligne4 = f"cx:{cx:3d} | cy:{cy:3d}"
+            texte_ligne5 = f"ralent:{ralentissement:3.0f}"
             
             # On décale les coordonnées d'écriture vers la droite et le bas
             decalage_x = largeur_image + 10
             cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
             cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
             cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 75), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1) 
+            cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1)
+            cv2.putText(frame_finale, texte_ligne5, (decalage_x, hauteur_image + 125), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
             # On enregistre la frame modifiée au lieu de l'originale
             enregistreur_video.write(frame_finale)

@@ -39,7 +39,6 @@ def main():
     centre_vire = largeur_image // 2 
 
 
-    ralentissement = 0
     SEUIL_PLAFOND = 10  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
     
@@ -103,7 +102,7 @@ def main():
 
                     derniere_commande = commande  
                     
-                    #ralentissement = 0
+                    ralentissement = 0
                     
                     # 1. Freinage lié à l'erreur (Gauche/Droite)
                     if abs(erreur) > TOLERANCE_ERREUR:

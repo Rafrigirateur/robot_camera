@@ -37,7 +37,7 @@ def main():
     centre_vire = largeur_image // 2 
 
 
-    SEUIL_PLAFOND = 10  # Marge en pixels depuis le haut
+    SEUIL_PLAFOND = 2  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")

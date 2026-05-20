@@ -36,7 +36,7 @@ def main():
     pid = PID(kp=0.12, ki=0.0, kd=0.05)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 45
+    VITESSE_MAX = 55
     VITESSE_MIN = 15
     COEFF_FREINAGE = 1.6
     TOLERANCE_ERREUR = 15
@@ -180,7 +180,7 @@ def main():
             cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
             cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
             cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 80), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1)
-            cv2.putText(frame_finale, texte_ligne5, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+            cv2.putText(frame_finale, texte_ligne5, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
             # On enregistre la frame modifiée au lieu de l'originale
             enregistreur_video.write(frame_finale)

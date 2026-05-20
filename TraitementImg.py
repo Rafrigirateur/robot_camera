@@ -121,7 +121,7 @@ def main():
                     moitie_ecran_y = hauteur_image // 2
                     if cy > moitie_ecran_y:
                         # Plus le point bleu descend sous la moitié de l'écran, plus on freine fort
-                        ralentissement += pow(cy - moitie_ecran_y, 2) * COEFF_FREINAGE_CY
+                        ralentissement += pow(cy - moitie_ecran_y, 2) * 0.01 * COEFF_FREINAGE_CY
                         
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
                     vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)

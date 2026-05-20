@@ -19,7 +19,12 @@ def main():
     moteurs = Moteur()
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    enregistreur_video = cv2.VideoWriter('log_robot.avi', fourcc, 30.0, (largeur_image * 2, hauteur_image * 2))
+
+    date_heure = time.strftime("%Y-%m-%d_%H-%M")
+    nom_fichier = f"log_robot_{date_heure}.avi"
+    
+    enregistreur_video = cv2.VideoWriter(nom_fichier, fourcc, 30.0, (largeur_image * 2, hauteur_image * 2))
+    print(f"La vidéo sera sauvegardée sous : {nom_fichier}")
     
     # Variables par défaut pour l'affichage au cas où la ligne est perdue dès le début
     erreur, commande, vitesse_gauche, vitesse_droite, vitesse_base_dynamique = 0, 0, 0, 0, 0

@@ -35,7 +35,7 @@ def main():
     pid = PID(kp=0.12, ki=0.0, kd=0.05)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 55
+    VITESSE_MAX = 45
     VITESSE_MIN = 15
     COEFF_FREINAGE = 1.6
     TOLERANCE_ERREUR = 15

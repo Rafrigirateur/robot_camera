@@ -28,6 +28,7 @@ def main():
     
     # Variables par défaut pour l'affichage au cas où la ligne est perdue dès le début
     erreur, commande, vitesse_gauche, vitesse_droite, vitesse_base_dynamique = 0, 0, 0, 0, 0
+    cx, cy = 0, 0
     
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
@@ -44,6 +45,8 @@ def main():
 
     SEUIL_PLAFOND = 2  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
+
+    COEFF_FREINAGE_CY = 1.5
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
     time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
@@ -112,12 +115,13 @@ def main():
                     # 1. Freinage lié à l'erreur (Gauche/Droite)
                     if abs(erreur) > TOLERANCE_ERREUR:
                         ralentissement += (abs(erreur) - TOLERANCE_ERREUR) * COEFF_FREINAGE
-                        
-                    
-                    
                     if y > SEUIL_PLAFOND:
-                        # Si le haut de la ligne est à plus de 10 pixels du plafond, on freine
                         ralentissement += (y - SEUIL_PLAFOND) * COEFF_FREINAGE_Y
+                    # Freinage lié au centre de masse (point bleu)
+                    moitie_ecran_y = hauteur_image // 2
+                    if cy > moitie_ecran_y:
+                        # Plus le point bleu descend sous la moitié de l'écran, plus on freine fort
+                        ralentissement += (cy - moitie_ecran_y) * COEFF_FREINAGE_CY
                         
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
                     vitesse_base_dynamique = max(VITESSE_MIN, vitesse_base_dynamique)
@@ -157,16 +161,24 @@ def main():
             frame_finale[0:hauteur_image, largeur_image:largeur_image*2] = mask_couleur        # Haut Droite
             frame_finale[hauteur_image:hauteur_image*2, 0:largeur_image] = frame               # Bas Gauche (avec contours)
             
+            couleur_bordure = (150, 150, 150) # Gris clair
+            epaisseur = 2
+
+            cv2.line(frame_finale, (largeur_image, 0), (largeur_image, hauteur_image * 2), couleur_bordure, epaisseur)
+            cv2.line(frame_finale, (0, hauteur_image), (largeur_image * 2, hauteur_image), couleur_bordure, epaisseur)
+
             # 4. Textes et variables pour le quadrant Bas Droite (qui reste noir)
             texte_ligne1 = f"Err:{erreur:3d} | Cmd:{commande:3.0f}"
             texte_ligne2 = f"VG:{vitesse_gauche:3.0f} | VD:{vitesse_droite:3.0f}"
             texte_ligne3 = f"Base: {vitesse_base_dynamique:3.0f}"
+            texte_ligne4 = f"cx:{cx:3d} | cy:{cy:3d}"
             
             # On décale les coordonnées d'écriture vers la droite et le bas
-            decalage_x = largeur_image + 5
-            cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
-            cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+            decalage_x = largeur_image + 10
+            cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne3, (decalage_x, hauteur_image + 75), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+            cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1) 
 
             # On enregistre la frame modifiée au lieu de l'originale
             enregistreur_video.write(frame_finale)

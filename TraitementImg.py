@@ -191,8 +191,9 @@ def main():
                     print(f"!!! Marquage détecté à {position_marquage} !!! Score : {score}")
                 elif not active:
                     before -= 1
-            #else:
-                # pass # Si on perd la ligne, le code continue simplement
+            else:
+                moteurs.piloter(0, 0)
+                break  # On sort de la boucle, le bloc 'finally' prend le relais
 
             # --- CRÉATION DE LA GRILLE D'AFFICHAGE 2x2 ---
             frame_finale = np.zeros((hauteur_image * 2, largeur_image * 2, 3), dtype=np.uint8)

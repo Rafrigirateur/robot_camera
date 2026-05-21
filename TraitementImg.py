@@ -294,7 +294,7 @@ def main():
             
             
             
-            if (score >= 3):
+            if (score >= 4):
                 objectif_atteint = True
             
 

@@ -48,7 +48,11 @@ def main():
     SEUIL_PLAFOND = 2  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
 
-    COEFF_FREINAGE_CY = 1.5
+    COEFF_FREINAGE_CY = 1.
+    
+    score = 0
+    before = False
+    SEUIL_AIRE_MARQUAGE = 300
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
     time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
@@ -84,7 +88,9 @@ def main():
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
             
             if len(contours) > 0:
-                c = max(contours, key=cv2.contourArea)
+                contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+                c = contours[0]
 
                 x, y, w, h = cv2.boundingRect(c)
                 est_un_croisement = w > (largeur_image * 0.70)
@@ -133,11 +139,53 @@ def main():
                     moteurs.piloter(vitesse_gauche, vitesse_droite)                    
                     print(f"Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
+
+
                     # Éléments de dessin pour le debug visuel
                     #if AFFICHAGE_ACTIF:
                     cv2.drawContours(frame, [c], -1, (0, 255, 0), 1)
                     cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
                     cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
+
+                    active = False
+                position_marquage = "Aucun"
+                
+                # S'il y a au moins 2 contours, on analyse le deuxième
+                if len(contours) > 1:
+                    c_marquage = contours[1]
+                    aire_marquage = cv2.contourArea(c_marquage)
+                    
+                    # On vérifie que ce n'est pas juste du bruit visuel
+                    if aire_marquage > SEUIL_AIRE_MARQUAGE:
+                        active = True
+                        
+                        # Calcul du centre du marquage
+                        M_marq = cv2.moments(c_marquage)
+                        if M_marq["m00"] != 0:
+                            cx_marq = int(M_marq["m10"] / M_marq["m00"])
+                            cy_marq = int(M_marq["m01"] / M_marq["m00"])
+                            
+                            # Comparaison : le marquage est-il à gauche ou à droite de la ligne ?
+                            if cx_marq < cx:
+                                position_marquage = "Gauche"
+                            else:
+                                position_marquage = "Droite"
+                                
+                            # 1. Obtenir les coordonnées du rectangle qui englobe le contour
+                            x_m, y_m, w_m, h_m = cv2.boundingRect(c_marquage)
+                            
+                            # 2. Dessiner le rectangle bleu (BGR : 255, 0, 0)
+                            cv2.rectangle(frame, (x_m, y_m), (x_m + w_m, y_m + h_m), (255, 0, 0), 2)
+                            
+                            # 3. Dessiner le point central en bleu
+                            cv2.circle(frame, (cx_marq, cy_marq), 3, (255, 0, 0), -1)
+
+                if active and before == False:
+                    score += 1
+                    before = True
+                    print(f"!!! Marquage détecté à {position_marquage} !!! Score : {score}")
+                elif not active:
+                    before = False
             else:
                 # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
                 print("Ligne Perdue ! Recherche active...")
@@ -172,9 +220,9 @@ def main():
             # 4. Textes et variables pour le quadrant Bas Droite (qui reste noir)
             texte_ligne1 = f"Err:{erreur:3d} | Cmd:{commande:3.0f}"
             texte_ligne2 = f"VG:{vitesse_gauche:3.0f} | VD:{vitesse_droite:3.0f}"
-            texte_ligne3 = f"Base: {vitesse_base_dynamique:3.0f}"
+            texte_ligne3 = f"Bs: {vitesse_base_dynamique:3.0f} | rltr:{ralentissement:3.0f}"
             texte_ligne4 = f"cx:{cx:3d} | cy:{cy:3d}"
-            texte_ligne5 = f"ralent:{ralentissement:3.0f}"
+            texte_ligne5 = f"pt:{score:3d} | posM:{position_marquage}"
             
             # On décale les coordonnées d'écriture vers la droite et le bas
             decalage_x = largeur_image + 10

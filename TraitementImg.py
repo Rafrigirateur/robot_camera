@@ -36,16 +36,6 @@ def main():
     position_marquage = "Aucun"
     active = False
     
-    def demarrer_chrono(temps_secondes):
-        def fin_chrono():
-            nonlocal objectif_atteint # Permet de modifier la variable de la fonction main()
-            objectif_atteint = True
-            print(f"\n⏳ [Chrono] Temps écoulé ({temps_secondes}s) ! Arrêt du robot demandé.")
-            
-        # Création et lancement du minuteur en arrière-plan
-        minuteur = threading.Timer(temps_secondes, fin_chrono)
-        minuteur.daemon = True # Permet au minuteur de s'arrêter si on fait Ctrl+C
-        minuteur.start()
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
@@ -281,7 +271,6 @@ def main():
                     print("Serveur graphique non détecté. Passage en mode headless automatisé.")
                     AFFICHAGE_ACTIF = False
         if (score >= 1):
-            demarrer_chrono(0.3)
             objectif_atteint = True
 
     except KeyboardInterrupt:

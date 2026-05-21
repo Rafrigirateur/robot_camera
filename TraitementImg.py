@@ -269,6 +269,7 @@ def main():
             if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:
                 print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt complet du robot.")
                 tour(moteurs, vitesse_pivot=30)
+                break  # On sort de la boucle, le bloc 'finally' prend le relais
 
     except KeyboardInterrupt:
         print("\nArrêt demandé par l'utilisateur.")

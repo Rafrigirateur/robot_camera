@@ -1,4 +1,3 @@
-import asyncio
 import cv2
 import numpy as np
 import time
@@ -10,7 +9,15 @@ import threading
 # Configurable : Mets False pour désactiver le retour vidéo en SSH
 AFFICHAGE_ACTIF = False  
 
-async def main():
+
+def demi_tour(moteurs, vitesse_pivot=30):
+    TIMEOUT = moteurs.temps360 / 2 * 1.5
+    moteurs.piloter(vitesse_pivot, -vitesse_pivot)
+    time.sleep(TIMEOUT)
+    moteurs.stop()
+
+
+def main():
     global AFFICHAGE_ACTIF
     
     # 1. Configuration des composants
@@ -228,9 +235,10 @@ async def main():
             
             # --- GESTION DE LA LIGNE D'ARRIVÉE ---
             # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
-            if score >= 4 and temps_arret_prevu is None:
-                print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
-                temps_arret_prevu = time.time() #+ 0.1  # Heure actuelle + 0.5 seconde
+            if score == 2 and temps_arret_prevu is None:
+                demi_tour(moteurs, vitesse_pivot=30) 
+                #print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
+                #temps_arret_prevu = time.time() #+ 0.1  # Heure actuelle + 0.5 seconde
                 
             # 2. On vérifie en permanence si le temps supplémentaire est écoulé
             if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:
@@ -254,4 +262,4 @@ async def main():
         print("Fermeture du programme et sauvegarde de la vidéo.")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

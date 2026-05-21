@@ -36,10 +36,10 @@ def main():
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
-    pid = PID(kp=0.3, ki=0.0, kd=0.14)
+    pid = PID(kp=0.3, ki=0.0, kd=0.10)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 45
+    VITESSE_MAX = 30
     VITESSE_MIN = 15
     COEFF_FREINAGE = 1.6
     TOLERANCE_ERREUR = 15

@@ -230,7 +230,7 @@ async def main():
             # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
             if score >= 4 and temps_arret_prevu is None:
                 print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
-                temps_arret_prevu = time.time() + 0.5  # Heure actuelle + 0.5 seconde
+                temps_arret_prevu = time.time() + 0.3  # Heure actuelle + 0.5 seconde
                 
             # 2. On vérifie en permanence si le temps supplémentaire est écoulé
             if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:

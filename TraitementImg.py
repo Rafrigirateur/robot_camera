@@ -41,6 +41,7 @@ def main():
     ralentissement = 0
     position_marquage = "Aucun"
     active = False
+    passe = False
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     pid = PID(kp=0.25, ki=0.0, kd=0.10)
@@ -235,7 +236,6 @@ def main():
             
             # --- GESTION DE LA LIGNE D'ARRIVÉE ---
             # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
-            passe = False
             if score == 2 and temps_arret_prevu is None and not passe:
                 passe = True
                 demi_tour(moteurs, vitesse_pivot=30) 

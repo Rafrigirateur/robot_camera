@@ -237,11 +237,11 @@ def main():
             
             # --- GESTION DE LA LIGNE D'ARRIVÉE ---
             # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
-            if score == 2 and temps_arret_prevu is None and not passe:
-                passe = True
-                demi_tour(moteurs, vitesse_pivot=30) 
-                #print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
-                #temps_arret_prevu = time.time() #+ 0.1  # Heure actuelle + 0.5 seconde
+            if score == 5 and temps_arret_prevu is None :#and not passe:
+                #passe = True
+                #demi_tour(moteurs, vitesse_pivot=30) 
+                print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
+                temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
                 
             # 2. On vérifie en permanence si le temps supplémentaire est écoulé
             if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:

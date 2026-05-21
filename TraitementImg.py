@@ -272,6 +272,12 @@ def main():
                     AFFICHAGE_ACTIF = False
             if (score >= 1):
                 objectif_atteint = True
+            
+            while objectif_atteint:
+                moteurs.piloter(0, 0)
+                print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt du robot.")
+                time.sleep(120)  # Laisse le temps de célébrer avant de couper le moteur
+                break
 
     except KeyboardInterrupt:
         print("\nArrêt demandé par l'utilisateur.")

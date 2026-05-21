@@ -270,8 +270,8 @@ def main():
                     # Si OpenCV crash à cause de l'absence d'écran X11, on coupe l'affichage définitivement
                     print("Serveur graphique non détecté. Passage en mode headless automatisé.")
                     AFFICHAGE_ACTIF = False
-        if (score >= 1):
-            objectif_atteint = True
+            if (score >= 1):
+                objectif_atteint = True
 
     except KeyboardInterrupt:
         print("\nArrêt demandé par l'utilisateur.")

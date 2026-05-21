@@ -4,9 +4,12 @@ import time
 from Hardware.camera import Camera
 from Hardware.moteur import Moteur
 from Pid import PID
+import threading
 
 # Configurable : Mets False pour désactiver le retour vidéo en SSH
 AFFICHAGE_ACTIF = False  
+
+
 
 def main():
     global AFFICHAGE_ACTIF
@@ -33,6 +36,16 @@ def main():
     position_marquage = "Aucun"
     active = False
     
+    def demarrer_chrono(temps_secondes):
+        def fin_chrono():
+            nonlocal objectif_atteint # Permet de modifier la variable de la fonction main()
+            objectif_atteint = True
+            print(f"\n⏳ [Chrono] Temps écoulé ({temps_secondes}s) ! Arrêt du robot demandé.")
+            
+        # Création et lancement du minuteur en arrière-plan
+        minuteur = threading.Timer(temps_secondes, fin_chrono)
+        minuteur.daemon = True # Permet au minuteur de s'arrêter si on fait Ctrl+C
+        minuteur.start()
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
@@ -267,6 +280,9 @@ def main():
                     # Si OpenCV crash à cause de l'absence d'écran X11, on coupe l'affichage définitivement
                     print("Serveur graphique non détecté. Passage en mode headless automatisé.")
                     AFFICHAGE_ACTIF = False
+        if (score >= 1):
+            demarrer_chrono(0.3)
+            objectif_atteint = True
 
     except KeyboardInterrupt:
         print("\nArrêt demandé par l'utilisateur.")

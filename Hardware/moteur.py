@@ -9,7 +9,7 @@ class Moteur:
                   bin1=24, bin2=23, 
                   stby=22, # Correspond à NSLEEP
                   force=20,
-                  temps360=1.8):
+                  temps360=1.6):
         
         # Pins (Mis à jour selon mouvement2.py)
         self.AIN1 = ain1

@@ -9,7 +9,16 @@ import threading
 # Configurable : Mets False pour désactiver le retour vidéo en SSH
 AFFICHAGE_ACTIF = False  
 
-
+def attendre_et_terminer(delai_ms):
+    """
+    Attend un nombre de millisecondes donné en arrière-plan, 
+    puis passe la variable objectif_atteint à True.
+    """
+    global objectif_atteint
+    # time.sleep prend des secondes, on convertit donc les millisecondes
+    time.sleep(delai_ms / 1000.0) 
+    objectif_atteint = True
+    print(f"\n⏱️ Timer terminé ({delai_ms} ms) : Objectif forcé à True !")
 
 def main():
     global AFFICHAGE_ACTIF
@@ -70,7 +79,7 @@ def main():
     time.sleep(0.2)
 
     try:
-        while not objectif_atteint:
+        while True:
             # 2. Capture d'image
             frame = cam.get_frame()
             if frame is None:
@@ -270,13 +279,21 @@ def main():
                     # Si OpenCV crash à cause de l'absence d'écran X11, on coupe l'affichage définitivement
                     print("Serveur graphique non détecté. Passage en mode headless automatisé.")
                     AFFICHAGE_ACTIF = False
-            if (score >= 1):
-                objectif_atteint = True
             
+            
+            
+            
+            
+            if (score >= 1):
+                attendre_et_terminer(300)
+            
+
+
+
             while objectif_atteint:
                 moteurs.piloter(0, 0)
                 print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt du robot.")
-                time.sleep(120)  # Laisse le temps de célébrer avant de couper le moteur
+                time.sleep(1200)  # Laisse le temps de célébrer avant de couper le moteur
                 break
 
     except KeyboardInterrupt:

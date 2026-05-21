@@ -78,8 +78,8 @@ def main():
 
             # 3. Traitement d'image HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            low_b = np.array([15, 10, 150], dtype=np.uint8)  
-            high_b = np.array([50, 65, 255], dtype=np.uint8)
+            low_b = np.array([1, 50, 148], dtype=np.uint8)
+            high_b = np.array([31, 150, 248], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
 
             #horizon = hauteur_image // 2

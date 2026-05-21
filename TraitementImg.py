@@ -11,7 +11,7 @@ AFFICHAGE_ACTIF = False
 
 
 def demi_tour(moteurs, vitesse_pivot=30):
-    TIMEOUT = moteurs.temps360 / 2 * 1.5
+    TIMEOUT = moteurs.temps360 / 2
     moteurs.piloter(vitesse_pivot, -vitesse_pivot)
     time.sleep(TIMEOUT)
     moteurs.stop()

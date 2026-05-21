@@ -50,7 +50,7 @@ async def main():
     COEFF_FREINAGE_CY = 0.8
     
     score = 0
-    before = False
+    before = 0
     SEUIL_AIRE_MARQUAGE = 200
 
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
@@ -177,12 +177,12 @@ async def main():
                             cv2.rectangle(frame, (x_m, y_m), (x_m + w_m, y_m + h_m), (255, 0, 0), 2)
                             cv2.circle(frame, (cx_marq, cy_marq), 3, (255, 0, 0), -1)
 
-                if active and before == False:
+                if active and before <= 0:
                     score += 1
-                    before = True
+                    before = 3
                     print(f"!!! Marquage détecté à {position_marquage} !!! Score : {score}")
                 elif not active:
-                    before = False
+                    before -= 1
             else:
                 pass # Si on perd la ligne, le code continue simplement
 
@@ -228,7 +228,7 @@ async def main():
             
             # --- GESTION DE LA LIGNE D'ARRIVÉE ---
             # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
-            if score >= 4 and temps_arret_prevu is None:
+            if score >= 2 and temps_arret_prevu is None:
                 print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
                 temps_arret_prevu = time.time() + 0.5  # Heure actuelle + 0.5 seconde
                 

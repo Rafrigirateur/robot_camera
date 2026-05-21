@@ -22,6 +22,13 @@ try:
         if processus_robot is not None and processus_robot.poll() is not None:
             print(f"\n[INFO] Le robot s'est arrêté tout seul (Code: {processus_robot.poll()}). Réinitialisation...")
             processus_robot = None
+
+            print("Action requise : Remets l'interrupteur sur OFF pour réarmer le système.")
+            # On bloque le gestionnaire tant que le bouton physique est resté sur ON
+            while GPIO.input(PIN_INTERRUPTEUR) == GPIO.LOW:
+                time.sleep(0.1)
+            print("Système réarmé. Prêt pour un nouveau départ !")
+            
         # Lecture de l'état (0 = Fermé/ON, 1 = Ouvert/OFF)
         etat_interrupteur = GPIO.input(PIN_INTERRUPTEUR)
         

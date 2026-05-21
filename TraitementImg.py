@@ -100,7 +100,7 @@ def main():
             high_b = np.array([180, 255, 50], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
 
-            kernel = np.ones((7, 7), np.uint8)
+            kernel = np.ones((5, 5), np.uint8)
             mask = cv2.dilate(mask, kernel, iterations=1)
 
             #horizon = hauteur_image // 2

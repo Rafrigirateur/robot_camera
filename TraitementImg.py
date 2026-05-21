@@ -100,7 +100,7 @@ def main():
             high_b = np.array([180, 255, 50], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
 
-            kernel = np.ones((5, 5), np.uint8)
+            kernel = np.ones((7, 7), np.uint8)
             mask = cv2.dilate(mask, kernel, iterations=1)
 
             #horizon = hauteur_image // 2
@@ -224,6 +224,9 @@ def main():
                 elif not active:
                     before = False
             else:
+                #objectif_atteint = True
+
+                
                 # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
                 print("Ligne Perdue ! Recherche active...")
 
@@ -233,8 +236,11 @@ def main():
                 # Au lieu de s'arrêter, le robot pivote sur lui-même dans la dernière direction connue
                 if derniere_commande > 0:
                     moteurs.piloter(VITESSE_PIVOT, -VITESSE_PIVOT)
+
                 else:
                     moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
+
+                    
 
             # --- CRÉATION DE LA GRILLE D'AFFICHAGE 2x2 ---
             # 1. On crée le canevas noir global (320x240 pixels)

@@ -33,7 +33,7 @@ def main():
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
-    pid = PID(kp=0.12, ki=0.0, kd=0.05)
+    pid = PID(kp=0.4, ki=0.0, kd=0.2)
     
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 45
@@ -48,7 +48,7 @@ def main():
     SEUIL_PLAFOND = 2  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
 
-    COEFF_FREINAGE_CY = 1.
+    COEFF_FREINAGE_CY = 0.8
     
     score = 0
     before = False

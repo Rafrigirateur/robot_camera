@@ -224,9 +224,9 @@ def main():
                 elif not active:
                     before = False
             else:
-                #objectif_atteint = True
+                objectif_atteint = True
 
-                
+                """
                 # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
                 print("Ligne Perdue ! Recherche active...")
 
@@ -238,7 +238,7 @@ def main():
                     moteurs.piloter(VITESSE_PIVOT, -VITESSE_PIVOT)
 
                 else:
-                    moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)
+                    moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)"""
 
                     
 
@@ -293,10 +293,10 @@ def main():
             
             
             
-            
+            """
             if (score >= 3):
                 objectif_atteint = True
-            
+            """
 
 
 

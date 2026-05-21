@@ -29,6 +29,9 @@ def main():
     # Variables par défaut pour l'affichage au cas où la ligne est perdue dès le début
     erreur, commande, vitesse_gauche, vitesse_droite, vitesse_base_dynamique = 0, 0, 0, 0, 0
     cx, cy = 0, 0
+    ralentissement = 0
+    position_marquage = "Aucun"
+    active = False
     
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)

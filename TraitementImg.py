@@ -36,7 +36,7 @@ def main():
     pid = PID(kp=0.12, ki=0.0, kd=0.05)
     
     # Vitesse de croisière du robot (sur 100)
-    VITESSE_MAX = 50
+    VITESSE_MAX = 45
     VITESSE_MIN = 15
     COEFF_FREINAGE = 1.6
     TOLERANCE_ERREUR = 15
@@ -105,7 +105,7 @@ def main():
 
                     # --- ON SUPPRIME LE DEUXIEME APPEL QUI ETAIT ICI ---
 
-                    LIMITE_COMMANDE = 60
+                    LIMITE_COMMANDE = 50
                     commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)
 
                     derniere_commande = commande  

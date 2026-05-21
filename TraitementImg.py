@@ -42,6 +42,8 @@ def main():
     TOLERANCE_ERREUR = 15
     centre_vire = largeur_image // 2 
 
+    objectif_atteint = False
+
 
     SEUIL_PLAFOND = 2  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
@@ -57,7 +59,7 @@ def main():
     time.sleep(0.2)
 
     try:
-        while True:
+        while not objectif_atteint:
             # 2. Capture d'image
             frame = cam.get_frame()
             if frame is None:

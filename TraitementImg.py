@@ -20,6 +20,7 @@ def attendre_et_terminer(delai_ms):
     objectif_atteint = True
     print(f"\n⏱️ Timer terminé ({delai_ms} ms) : Objectif forcé à True !")
 
+
 def main():
     global AFFICHAGE_ACTIF
     
@@ -285,7 +286,7 @@ def main():
             
             
             if (score >= 1):
-                attendre_et_terminer(300)
+                objectif_atteint = True
             
 
 

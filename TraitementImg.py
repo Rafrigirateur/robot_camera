@@ -16,6 +16,13 @@ def demi_tour(moteurs, vitesse_pivot=30):
     time.sleep(TIMEOUT)
     moteurs.stop()
 
+def tour(moteurs, vitesse_pivot=30):
+    TIMEOUT = moteurs.temps360
+    moteurs.piloter(vitesse_pivot, -vitesse_pivot)
+    time.sleep(TIMEOUT)
+    moteurs.stop()
+
+    
 
 def main():
     global AFFICHAGE_ACTIF
@@ -42,6 +49,8 @@ def main():
     position_marquage = "Aucun"
     active = False
     passe = False
+    passe2 = False
+    passe1 = False
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
     pid = PID(kp=0.25, ki=0.0, kd=0.10)
@@ -237,17 +246,29 @@ def main():
             
             # --- GESTION DE LA LIGNE D'ARRIVÉE ---
             # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
-            if score == 5 and temps_arret_prevu is None :#and not passe:
-                #passe = True
+            if (score == 1) and temps_arret_prevu is None and not passe:
+                passe = True
+                #demi_tour(moteurs, vitesse_pivot=30) 
+                print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
+                temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
+
+            if (score == 3) and temps_arret_prevu is None and not passe1:
+                passe1 = True
                 #demi_tour(moteurs, vitesse_pivot=30) 
                 print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
                 temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
                 
+            if (score == 4) and temps_arret_prevu is None and not passe2:
+                passe2 = True
+                #demi_tour(moteurs, vitesse_pivot=30) 
+                print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
+                temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
+                
+                
             # 2. On vérifie en permanence si le temps supplémentaire est écoulé
             if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:
                 print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt complet du robot.")
-                moteurs.piloter(0, 0)
-                break  # On sort de la boucle, le bloc 'finally' prend le relais
+                tour(moteurs, vitesse_pivot=30)
 
     except KeyboardInterrupt:
         print("\nArrêt demandé par l'utilisateur.")

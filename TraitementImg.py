@@ -17,7 +17,7 @@ def demi_tour(moteurs, vitesse_pivot=30):
     moteurs.stop()
 
 def tour(moteurs, vitesse_pivot=30):
-    TIMEOUT = moteurs.temps360
+    TIMEOUT = moteurs.temps360 /2
     moteurs.piloter(vitesse_pivot, -vitesse_pivot)
     time.sleep(TIMEOUT)
     moteurs.stop()

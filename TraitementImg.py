@@ -1,3 +1,4 @@
+import asyncio
 import cv2
 import numpy as np
 import time
@@ -9,19 +10,7 @@ import threading
 # Configurable : Mets False pour désactiver le retour vidéo en SSH
 AFFICHAGE_ACTIF = False  
 
-def attendre_et_terminer(delai_ms):
-    """
-    Attend un nombre de millisecondes donné en arrière-plan, 
-    puis passe la variable objectif_atteint à True.
-    """
-    global objectif_atteint
-    # time.sleep prend des secondes, on convertit donc les millisecondes
-    time.sleep(delai_ms / 1000.0) 
-    objectif_atteint = True
-    print(f"\n⏱️ Timer terminé ({delai_ms} ms) : Objectif forcé à True !")
-
-
-def main():
+async def main():
     global AFFICHAGE_ACTIF
     
     # 1. Configuration des composants
@@ -46,9 +35,7 @@ def main():
     position_marquage = "Aucun"
     active = False
     
-    
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
-    # Règle d'abord Kp (ex: 0.4), laisse Ki à 0, et mets un poil de Kd (ex: 0.05)
     pid = PID(kp=0.3, ki=0.0, kd=0.12)
     
     # Vitesse de croisière du robot (sur 100)
@@ -58,23 +45,19 @@ def main():
     TOLERANCE_ERREUR = 15
     centre_vire = largeur_image // 2 
 
-    objectif_atteint = False
-
-
     SEUIL_PLAFOND = 2  # Marge en pixels depuis le haut
     COEFF_FREINAGE_Y = 1.2 # Force du freinage vertical (à ajuster)
-
     COEFF_FREINAGE_CY = 0.8
     
     score = 0
     before = False
     SEUIL_AIRE_MARQUAGE = 200
 
-    
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
     time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
 
     derniere_commande = 0
+    temps_arret_prevu = None  # <-- Le chronomètre pour la fin du parcours
 
     moteurs.piloter(40, 40)
     time.sleep(0.2)
@@ -89,22 +72,17 @@ def main():
 
             frame_originale = frame.copy()
 
-            #Flou gaussien pour réduire le bruit
+            # Flou gaussien pour réduire le bruit
             frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
             # 3. Traitement d'image HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            #low_b = np.array([1, 50, 148], dtype=np.uint8)
-            #high_b = np.array([31, 150, 248], dtype=np.uint8)
             low_b = np.array([0, 0, 0], dtype=np.uint8)
             high_b = np.array([180, 255, 70], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
 
             kernel = np.ones((5, 5), np.uint8)
             mask = cv2.dilate(mask, kernel, iterations=1)
-
-            #horizon = hauteur_image // 2
-            #mask[0:horizon, :] = 0
             
             # Extraction des contours
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -124,16 +102,13 @@ def main():
                     
                     if est_un_croisement:
                         print("Croisement détecté ! On force le passage tout droit.")
-                        # On ignore le PID et on trace droit pour traverser
                         commande = 0 
                         vitesse_base_dynamique = VITESSE_MAX
-                        erreur = 0 # Pour l'affichage
+                        erreur = 0 
                     else:
                         # --- TRAITEMENT NORMAL DU PID ---
                         erreur = cx - centre_vire
-                        commande = pid.calculer(erreur)  # <-- UN SEUL APPEL ICI
-
-                    # --- ON SUPPRIME LE DEUXIEME APPEL QUI ETAIT ICI ---
+                        commande = pid.calculer(erreur)  
 
                     LIMITE_COMMANDE = 65
                     commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)
@@ -147,10 +122,9 @@ def main():
                         ralentissement += (abs(erreur) - TOLERANCE_ERREUR) * COEFF_FREINAGE
                     if y > SEUIL_PLAFOND:
                         ralentissement += (y - SEUIL_PLAFOND) * COEFF_FREINAGE_Y
-                    # Freinage lié au centre de masse (point bleu)
+                    # 2. Freinage lié au centre de masse
                     moitie_ecran_y = hauteur_image // 2
                     if cy > moitie_ecran_y:
-                        # Plus le point bleu descend sous la moitié de l'écran, plus on freine fort
                         ralentissement += pow(cy - moitie_ecran_y, 2) * 0.01 * COEFF_FREINAGE_CY
                         
                     vitesse_base_dynamique = VITESSE_MAX - ralentissement
@@ -161,10 +135,7 @@ def main():
                     moteurs.piloter(vitesse_gauche, vitesse_droite)                    
                     print(f"Err: {erreur:3d} | Base: {vitesse_base_dynamique:4.1f} | Cmd: {commande:5.1f} | Moteurs: G:{vitesse_gauche:5.1f} D:{vitesse_droite:5.1f}")
                     
-
-
                     # Éléments de dessin pour le debug visuel
-                    #if AFFICHAGE_ACTIF:
                     cv2.drawContours(frame, [c], -1, (0, 255, 0), 1)
                     cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
                     cv2.drawMarker(frame, (centre_vire, hauteur_image // 2), (0, 0, 255), cv2.MARKER_CROSS, 10, 1)
@@ -179,28 +150,22 @@ def main():
                     
                     # On vérifie que ce n'est pas juste du bruit visuel
                     if aire_marquage > SEUIL_AIRE_MARQUAGE:
-                        #active = True
-                        
                         # Calcul du centre du marquage
                         M_marq = cv2.moments(c_marquage)
                         if M_marq["m00"] != 0:
                             cx_marq = int(M_marq["m10"] / M_marq["m00"])
                             cy_marq = int(M_marq["m01"] / M_marq["m00"])
 
-                            # --- NOUVEAU : Configuration et test de l'ellipse ---
+                            # Configuration et test de l'ellipse
                             centre_x_ellipse = largeur_image // 2
                             centre_y_ellipse = hauteur_image // 2
-                            
-                            # Tu peux ajuster ces deux valeurs pour modifier la taille de la zone
-                            rayon_x = largeur_image // 2  # Demi-axe horizontal en pixels
-                            rayon_y = hauteur_image // 2  # Demi-axe vertical en pixels
+                            rayon_x = largeur_image // 2 
+                            rayon_y = hauteur_image // 2 
 
                             test_ellipse = ((cx_marq - centre_x_ellipse)**2) / (rayon_x**2) + ((cy_marq - centre_y_ellipse)**2) / (rayon_y**2)
 
                             if test_ellipse <= 1:
                                 active = True  # Le marquage est validé  
-
-                            
                             
                             # Comparaison : le marquage est-il à gauche ou à droite de la ligne ?
                             if cx_marq < cx:
@@ -208,13 +173,8 @@ def main():
                             else:
                                 position_marquage = "Droite"
                                 
-                            # 1. Obtenir les coordonnées du rectangle qui englobe le contour
                             x_m, y_m, w_m, h_m = cv2.boundingRect(c_marquage)
-                            
-                            # 2. Dessiner le rectangle bleu (BGR : 255, 0, 0)
                             cv2.rectangle(frame, (x_m, y_m), (x_m + w_m, y_m + h_m), (255, 0, 0), 2)
-                            
-                            # 3. Dessiner le point central en bleu
                             cv2.circle(frame, (cx_marq, cy_marq), 3, (255, 0, 0), -1)
 
                 if active and before == False:
@@ -224,50 +184,28 @@ def main():
                 elif not active:
                     before = False
             else:
-                objectif_atteint = True
-
-                """
-                # --- NOUVELLE STRATÉGIE DE PERTE DE LIGNE ---
-                print("Ligne Perdue ! Recherche active...")
-
-                pid.reset()
-
-                VITESSE_PIVOT = 22
-                # Au lieu de s'arrêter, le robot pivote sur lui-même dans la dernière direction connue
-                if derniere_commande > 0:
-                    moteurs.piloter(VITESSE_PIVOT, -VITESSE_PIVOT)
-
-                else:
-                    moteurs.piloter(-VITESSE_PIVOT, VITESSE_PIVOT)"""
-
-                    
+                pass # Si on perd la ligne, le code continue simplement
 
             # --- CRÉATION DE LA GRILLE D'AFFICHAGE 2x2 ---
-            # 1. On crée le canevas noir global (320x240 pixels)
             frame_finale = np.zeros((hauteur_image * 2, largeur_image * 2, 3), dtype=np.uint8)
-            
-            # 2. On convertit le masque (1 canal) en image (3 canaux) pour l'assemblage
             mask_couleur = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
             
-            # 3. On colle les images dans leurs quadrants respectifs
-            frame_finale[0:hauteur_image, 0:largeur_image] = frame_originale                   # Haut Gauche
-            frame_finale[0:hauteur_image, largeur_image:largeur_image*2] = mask_couleur        # Haut Droite
-            frame_finale[hauteur_image:hauteur_image*2, 0:largeur_image] = frame               # Bas Gauche (avec contours)
+            frame_finale[0:hauteur_image, 0:largeur_image] = frame_originale                   
+            frame_finale[0:hauteur_image, largeur_image:largeur_image*2] = mask_couleur        
+            frame_finale[hauteur_image:hauteur_image*2, 0:largeur_image] = frame               
             
-            couleur_bordure = (150, 150, 150) # Gris clair
+            couleur_bordure = (150, 150, 150)
             epaisseur = 2
 
             cv2.line(frame_finale, (largeur_image, 0), (largeur_image, hauteur_image * 2), couleur_bordure, epaisseur)
             cv2.line(frame_finale, (0, hauteur_image), (largeur_image * 2, hauteur_image), couleur_bordure, epaisseur)
 
-            # 4. Textes et variables pour le quadrant Bas Droite (qui reste noir)
             texte_ligne1 = f"Err:{erreur:3d} | Cmd:{commande:3.0f}"
             texte_ligne2 = f"VG:{vitesse_gauche:3.0f} | VD:{vitesse_droite:3.0f}"
             texte_ligne3 = f"Bs: {vitesse_base_dynamique:3.0f} | rltr:{ralentissement:3.0f}"
             texte_ligne4 = f"cx:{cx:3d} | cy:{cy:3d}"
             texte_ligne5 = f"pt:{score:3d} | posM:{position_marquage}"
             
-            # On décale les coordonnées d'écriture vers la droite et le bas
             decalage_x = largeur_image + 10
             cv2.putText(frame_finale, texte_ligne1, (decalage_x, hauteur_image + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
             cv2.putText(frame_finale, texte_ligne2, (decalage_x, hauteur_image + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
@@ -275,52 +213,45 @@ def main():
             cv2.putText(frame_finale, texte_ligne4, (decalage_x, hauteur_image + 80), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 150, 0), 1)
             cv2.putText(frame_finale, texte_ligne5, (decalage_x, hauteur_image + 100), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
-            # On enregistre la frame modifiée au lieu de l'originale
             enregistreur_video.write(frame_finale)
 
-            # 6. Gestion de l'affichage sécurisée
+            # Gestion de l'affichage sécurisée
             if AFFICHAGE_ACTIF:
                 try:
                     cv2.imshow("Masque", mask)
-                    cv2.imshow("Robot", frame_finale) # On affiche la nouvelle frame
+                    cv2.imshow("Robot", frame_finale) 
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 except cv2.error:
-                    # Si OpenCV crash à cause de l'absence d'écran X11, on coupe l'affichage définitivement
                     print("Serveur graphique non détecté. Passage en mode headless automatisé.")
                     AFFICHAGE_ACTIF = False
             
-            
-            
-            
-            
-            if (score >= 4):
-                objectif_atteint = True
-            
-
-
-
-            while objectif_atteint:
+            # --- GESTION DE LA LIGNE D'ARRIVÉE ---
+            # 1. On vient d'atteindre 4 points, on lance le chronomètre (une seule fois)
+            if score >= 4 and temps_arret_prevu is None:
+                print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
+                temps_arret_prevu = time.time() + 0.5  # Heure actuelle + 0.5 seconde
+                
+            # 2. On vérifie en permanence si le temps supplémentaire est écoulé
+            if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:
+                print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt complet du robot.")
                 moteurs.piloter(0, 0)
-                print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt du robot.")
-                time.sleep(1200)  # Laisse le temps de célébrer avant de couper le moteur
-                break
+                break  # On sort de la boucle, le bloc 'finally' prend le relais
 
     except KeyboardInterrupt:
         print("\nArrêt demandé par l'utilisateur.")
         
     finally:
+        # Sécurité pour être sûr que les moteurs s'arrêtent
+        moteurs.piloter(0, 0)
+        
         # Relâchement propre du matériel
         moteurs.cleanup()
         cam.release()
         
-        # --- NOUVEAU : On sauvegarde la vidéo proprement ---
         enregistreur_video.release() 
-        
         cv2.destroyAllWindows()
         print("Fermeture du programme et sauvegarde de la vidéo.")
 
 if __name__ == "__main__":
-    # Si le script est exécuté directement, on lance la boucle principale
-    main()
-    
+    asyncio.run(main())

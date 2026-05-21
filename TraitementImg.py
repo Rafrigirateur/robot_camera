@@ -114,7 +114,7 @@ def main():
 
                     # --- ON SUPPRIME LE DEUXIEME APPEL QUI ETAIT ICI ---
 
-                    LIMITE_COMMANDE = 50
+                    LIMITE_COMMANDE = 65
                     commande = max(min(commande, LIMITE_COMMANDE), -LIMITE_COMMANDE)
 
                     derniere_commande = commande  

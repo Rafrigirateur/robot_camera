@@ -36,7 +36,7 @@ async def main():
     active = False
     
     # Initialisation du PID (Coefficients à ajuster lors de tes tests !)
-    pid = PID(kp=0.25, ki=0.0, kd=0.12)
+    pid = PID(kp=0.25, ki=0.0, kd=0.10)
     
     # Vitesse de croisière du robot (sur 100)
     VITESSE_MAX = 35

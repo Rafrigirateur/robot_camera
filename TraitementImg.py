@@ -52,7 +52,8 @@ def main():
     
     score = 0
     before = False
-    SEUIL_AIRE_MARQUAGE = 300
+    SEUIL_AIRE_MARQUAGE = 250
+
     
     print("Démarrage du Suiveur de Ligne. Ctrl+C pour arrêter.")
     time.sleep(1) # Laisse le temps à l'utilisateur de poser le robot au sol
@@ -157,13 +158,28 @@ def main():
                     
                     # On vérifie que ce n'est pas juste du bruit visuel
                     if aire_marquage > SEUIL_AIRE_MARQUAGE:
-                        active = True
+                        #active = True
                         
                         # Calcul du centre du marquage
                         M_marq = cv2.moments(c_marquage)
                         if M_marq["m00"] != 0:
                             cx_marq = int(M_marq["m10"] / M_marq["m00"])
                             cy_marq = int(M_marq["m01"] / M_marq["m00"])
+
+                            # --- NOUVEAU : Configuration et test de l'ellipse ---
+                            centre_x_ellipse = largeur_image // 2
+                            centre_y_ellipse = hauteur_image // 2
+                            
+                            # Tu peux ajuster ces deux valeurs pour modifier la taille de la zone
+                            rayon_x = largeur_image // 2  # Demi-axe horizontal en pixels
+                            rayon_y = hauteur_image // 2  # Demi-axe vertical en pixels
+
+                            test_ellipse = ((cx_marq - centre_x_ellipse)**2) / (rayon_x**2) + ((cy_marq - centre_y_ellipse)**2) / (rayon_y**2)
+
+                            if test_ellipse <= 1:
+                                active = True  # Le marquage est validé  
+
+                            
                             
                             # Comparaison : le marquage est-il à gauche ou à droite de la ligne ?
                             if cx_marq < cx:

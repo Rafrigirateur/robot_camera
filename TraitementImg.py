@@ -97,7 +97,7 @@ def main():
             #low_b = np.array([1, 50, 148], dtype=np.uint8)
             #high_b = np.array([31, 150, 248], dtype=np.uint8)
             low_b = np.array([0, 0, 0], dtype=np.uint8)
-            high_b = np.array([180, 255, 50], dtype=np.uint8)
+            high_b = np.array([180, 255, 70], dtype=np.uint8)
             mask = cv2.inRange(hsv, low_b, high_b)
 
             kernel = np.ones((5, 5), np.uint8)

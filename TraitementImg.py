@@ -251,27 +251,28 @@ def main():
                 #demi_tour(moteurs, vitesse_pivot=30) 
                 print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
                 temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
-                break
+                
 
             if (score == 3) and temps_arret_prevu is None and not passe1:
                 passe1 = True
                 #demi_tour(moteurs, vitesse_pivot=30) 
                 print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
                 temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
-                break
+                
                 
             if (score == 4) and temps_arret_prevu is None and not passe2:
                 passe2 = True
                 #demi_tour(moteurs, vitesse_pivot=30) 
                 print("Ligne d'arrivée détectée ! Poursuite du suivi de ligne pendant 0.5s...")
                 temps_arret_prevu = time.time() + 0.6  # Heure actuelle + 0.5 seconde
-                break
+                
                 
                 
             # 2. On vérifie en permanence si le temps supplémentaire est écoulé
             if temps_arret_prevu is not None and time.time() >= temps_arret_prevu:
                 print(f"\n🎉 Objectif Atteint ! Score final : {score} point(s). Arrêt complet du robot.")
                 tour(moteurs, vitesse_pivot=30)
+                break
                  
 
     except KeyboardInterrupt:
